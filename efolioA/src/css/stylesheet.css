@@ -1,0 +1,28 @@
+body{            
+    margin: 0;
+    overflow: hidden;
+}    
+
+/* Definir propriedades da área de canvas na página */
+canvas {
+    display: block;
+    width:100%;
+    height: 100%;
+}
+
+#formulario{
+    position: absolute;
+    display: inline-block;
+    margin-left: 10px;
+    top: 75px;
+    z-index: 2;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+#formulario > button {
+    margin: 10px 0;
+    background-color: #ffffff;
+    padding: 5px;
+    border-radius:  5px;
+}
