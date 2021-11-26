@@ -10,6 +10,8 @@
 
 export {lineMP};                                //exportar a função lineMP como um modulo
 
+let pontos = [];                            //Variável que guarda os pontos calculados
+
 function lineMP(pontoA, pontoB){
     let x1 = pontoA.x;
     let y1 = pontoA.y;
@@ -49,7 +51,7 @@ function lineMP(pontoA, pontoB){
         dx = -dx;                               //e troca os deltas para os valores simétricos deles
         dy = -dy;
     }
-    let pontos = [];                            //Variável que guarda os pontos calculados
+    
     let y = y1;                         
     let incrementoE = 2 * dy;                   //Incremento para E
     let incrementoNE = 2 * (dy -dx);            //Incremento para NE
@@ -77,5 +79,5 @@ function lineMP(pontoA, pontoB){
         }
         pontos[i]= [x,y];                       //Atualiza os valores no array de pontos
     }
-    return pontos;
+   return pontos;
 }
