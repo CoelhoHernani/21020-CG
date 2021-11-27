@@ -28,7 +28,6 @@ function init(){
 function createScene(){
     scene = new THREE.Scene();                                                                          //Criar objeto cena 
     scene.name = "GraphicalMidlePointDemonstration";                                                    //Atribuir nome a cena
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);        //Criar objeto camara para prespetiva humana
     renderer = new THREE.WebGLRenderer({antialias: true});                                              //Criar renderer da cena
     renderer.setSize(window.innerWidth, window.innerHeight);                                            //Definir size do renderer
     document.body.appendChild(renderer.domElement);                                                     //Adicionar renderer na páginaWb
@@ -63,19 +62,22 @@ function createPlane(){
 
 //Posição da Camera inicial
 function initialCamera(){
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);        //Criar objeto camara para prespetiva humana
+    camera.name = "Camara Inicial";
     camera.position.y = -3;                                                    //Posição da camera nos eixos x y z
     camera.position.z = -5;
     camera.position.x = -5;
 
     controls = new OrbitControls(camera, renderer.domElement);                 //Biblioteca orbit permite controlo da camara em torno de um target
     controls.target.set(0, 0, 0);
-    controls.enablePan = false;                                                 //opção de fazer pan está desativa para evitar sair do foco da página
+    controls.enablePan = true;                                                 //opção de fazer pan está desativa para evitar sair do foco da página
     controls.minPolarAngle = 0;                                                 //Coordenadas polares (vertical) permitem rotação entre 0 e 90º, utilizador pode definir a prespetiva como quer ver
     controls.maxPolarAngle = Math.PI;
     controls.minAzimuthAngle = 0;                                               
     controls.maxAzimuthAngle = 0;
     controls.enableRotate = true;
     controls.enableDamping = true;
+    scene.add(camera);
 }
  
 //função para gerar eixos x,y do plano
@@ -172,7 +174,7 @@ function saveCoordinates(){
         arrayLMP = lineMP(pointA,pointB);       //Calcula o ponto médio, passando à lineMP os objetos literais,ponto A e B. Retorna um array de pontos 
         drawTilesMP(arrayLMP);                  //Desenhar os ladrilhos da LMP e a linha
         drawlineMP(arrayLMP);                   //Desenhar a linha do PM
-        arrayLMP.length = 0;                    //limpa array da linha já construida
+        arrayLMP.length = [];                    //limpa array da linha já construida
 
     }
     console.log("Ax:",pointA.x, "Ay:",pointA.y,"Bx:", pointB.x, "By:", pointB.y);   //Log do ponto A e B na consola
@@ -247,7 +249,7 @@ function resetCubeColor(){
         else
             arrayVerticesLMP[i].material.color.set(0x8c89b4);
     }
-    arrayVerticesLMP = 0;                                           //Limpa array para não acomular pontos desnecessários
+    arrayVerticesLMP = [];                                           //Limpa array para não acomular pontos desnecessários
 }
 
 //Renderização da cena para actualizar
