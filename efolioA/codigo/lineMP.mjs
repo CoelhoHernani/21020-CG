@@ -10,18 +10,16 @@
 
 export {lineMP};                                //exportar a função lineMP como um modulo
 
-let pontos = [];                            //Variável que guarda os pontos calculados
-
 function lineMP(pontoA, pontoB){
     let x1 = pontoA.x;
     let y1 = pontoA.y;
     let x2 = pontoB.x;
     let y2 = pontoB.y;
+    let pontos =[];
     let simetrico = false;                      //Variavel auxiliar para verificar se existiu trocas de valores
     let declive = false;                        //dos pontos devido a estarem noutro octante que não o padrão
     let dx = x2 - x1;                           //DeltaX
     let dy = y2 - y1;                           //DeltaY
-    //COnfirmar dx*dy
     let m = dx / dy;                            //Declive da reta
     if(m < 0){                                  //Verifica se declive é negativo
         simetrico = true;                       //Se for negativo atualiza valor de simetrico
