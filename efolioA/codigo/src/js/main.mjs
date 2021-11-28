@@ -1,9 +1,16 @@
+/*
+    UC:             Computação Gráfica
+    Efolio:         A
+    Autor:          Hernâni Coelho
+    Número Aluno:   1800045
+    Curso:          Licenciatura em Engenharia Informática
+*/
+
 // Código Javascript que executa as funções solicitadas    
 import * as THREE from 'https://unpkg.com/three@0.124.0/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.124.0/examples/jsm/controls/OrbitControls.js';
-
 import {lineMP} from '../../lineMP.mjs';
-
+export {init};
 
 //Declaração objetos da cena
 let scene, camera, renderer, controls, raycaster, mouse;                  
@@ -41,9 +48,9 @@ function createPlane(){
     for (let x = 0; x < 21; x++) {                                                              //Criar o plano de 21 por 21 quadrados alternados
         for (let y = 0; y < 21; y++) {
             let cube;                                                                           //Criar objetos cubos que compõem o tabuleiro
-            const leightColor = new THREE.MeshBasicMaterial( { color: 0xf68968 } );             //Criar objetos do tipo material de determinada cor e definir nomes
+            const leightColor = new THREE.MeshBasicMaterial({ color: 0xf68968 });             //Criar objetos do tipo material de determinada cor e definir nomes
             leightColor.name = "leightColor";
-            const darkColor = new THREE.MeshBasicMaterial( { color: 0x8c89b4 });
+            const darkColor = new THREE.MeshBasicMaterial({ color: 0x8c89b4 });
             darkColor.name = "darkColor";
             if (y % 2 == 0) {
                 cube = new THREE.Mesh(geometrySquare, x % 2 == 0 ? leightColor : darkColor);    //Com base na paridade da posição definir a cor atribuir
@@ -82,7 +89,7 @@ function initialCamera(){
  
 //função para gerar eixos x,y do plano
 function drawAxelLines(){
-    const materialX = new THREE.LineBasicMaterial( { color: 0x1507f7 } );           //Eixo x azul
+    const materialX = new THREE.LineBasicMaterial({ color: 0x1507f7 });           //Eixo x azul
     const pointsX = [];
     pointsX.push( new THREE.Vector3( 0, 0, 0.09 ) );  //x, y, z                     //pontos inicial e final da reta
     pointsX.push( new THREE.Vector3( 10.5, 0, 0.09 ) );
@@ -92,7 +99,7 @@ function drawAxelLines(){
     scene.add(lineX);
 
    
-    const materialY = new THREE.LineBasicMaterial( { color: 0xf71207 } );           //Eixo y vermelho
+    const materialY = new THREE.LineBasicMaterial({ color: 0xf71207 });           //Eixo y vermelho
     const pointsY = [];
     pointsY.push( new THREE.Vector3( 0, 0, 0.09 ) ); //x, y, z                      //pontos ponto inicial e final da reta
     pointsY.push( new THREE.Vector3( 0, 10.5, 0.09 ) );
@@ -104,7 +111,7 @@ function drawAxelLines(){
 }
 
 //Verifica se rato está mover-se
-window.addEventListener( 'mousemove', onMouseMove, false );
+window.addEventListener('mousemove', onMouseMove, false);
 //Obter Coordenas do rato sobre os pixeis da grelha
 function onMouseMove(event){
     mouse = new THREE.Vector2();
@@ -207,8 +214,8 @@ function drawlineMP(arrayLMP){
     let pointB_x = arrayLMP[indexB][0];
     let pointB_y = arrayLMP[indexB][1];
     let linePoints = [];                                            //pontos inicial e final da reta
-    linePoints.push( new THREE.Vector3( pointA_x, pointA_y, 0.1 ) ); //x, y, z
-    linePoints.push( new THREE.Vector3( pointB_x, pointB_y, 0.1 ) );
+    linePoints.push( new THREE.Vector3(pointA_x, pointA_y, 0.1 )); //x, y, z
+    linePoints.push( new THREE.Vector3(pointB_x, pointB_y, 0.1 ));
     const lineGeometry = new THREE.BufferGeometry().setFromPoints(linePoints);      
     const lineMP = new THREE.Line(lineGeometry, lineMaterial);                  //formar linha, unindo vertices anteriores
     lineMP.name = "lineMP";
@@ -266,7 +273,4 @@ function onWindowResize() {
     camera.updateProjectionMatrix();                                    //Atualiza camara
     renderer.setSize( window.innerWidth, window.innerHeight );          //Renderização do ouput das novas dimensões
 }
-
-//função que é chamada inicialmente
-window.onload = init();
 

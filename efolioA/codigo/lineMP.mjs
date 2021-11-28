@@ -8,75 +8,74 @@
 
 //Ficheiro lineMP.mjs
 
-export {lineMP};                                //exportar a função lineMP como um modulo
+export {lineMP};                                //exportar a função lineMP
 
-function lineMP(pontoA, pontoB){
-    let simetrico = false;                      //Variavel auxiliar para verificar se existiu trocas de valores
-    let declive = false;                        //dos pontos devido a estarem noutro octante que não o padrão
-    let x1 = pontoA.x;
-    let y1 = pontoA.y;
-    let x2 = pontoB.x;
-    let y2 = pontoB.y;
-    let dx = x2 - x1;                           //DeltaX
-    let dy = y2 - y1;                           //DeltaY
-    let pontos =[];
-    
-    let m = dx / dy;                            //Declive da reta
-    if(m < 0){                                  //Verifica se declive é negativo
-        simetrico = true;                       //Se for negativo atualiza valor de simetrico
-        dy = -dy;                               //e troca valores de deltay e y1 e y2
-        y1 = -y1;                               //para valores simétricos
-        y2 = -y2;
+function verifyConditionsLMP (variable,pointA, pointB){
+    let slope = variable.dy / variable.dx;                            //declive da reta
+    if(slope < 0){                                                    //Verifica se declive é negativo
+        variable.symmetric = true;                                
+        variable.dy = -variable.dy;                                 
+        pointA.y = -pointA.y;                                      //troca para valores simétricos dos pontos por estarem num octante que não o padrão
+        pointB.y = -pointB.y;
     }
-    if(Math.abs(dx)< Math.abs(dy)){             //Verifica se o valor (absoluto) de deltaX é infeior ao de deltaY 
-        declive = true;                         //Se for atualiza o valor de declive
-        let aux = x1;                           //e troca a ordem das coordenadas (x,y) para (y,x)
-        x1 = y1;                                //de ambos os pontos
-        y1 = aux;
-        aux = x2;
-        x2 = y2;
-        y2 = aux;
-        aux = dx;                               //e dos delta também
-        dx = dy;
-        dy = aux;
+    if(Math.abs(variable.dx)< Math.abs(variable.dy)){             //Verifica se em modulo, dx é inferior a dy 
+        variable.slope = true;                                   
+        let aux = pointA.x;                                         
+        pointA.x = pointA.y;                                        
+        pointA.y = aux;
+        aux = pointB.x;
+        pointB.x = pointB.y;                                    //troca a ordem dos pontos e dos delta
+        pointB.y = aux;
+        aux = variable.dx;                                         
+        variable.dx = variable.dy;
+        variable.dy = aux;
     }
-    if( x1 > x2){                               //verifica se valor de x1 é superior ao de x2 
-        let aux = x1;                           //Caso seja troca a ordem dos pontos 
-        x1 = x2;
-        x2 = aux;
-        aux = y1;
-        y1 = y2;
-        y2 = aux;
-        dx = -dx;                               //e troca os deltas para os valores simétricos deles
-        dy = -dy;
+    if( pointA.x > pointB.x){                                   //verifica se o x de A é superior ao x de B
+        let aux = pointA.x;                                         
+        pointA.x = pointB.x;
+        pointB.x = aux;
+        aux = pointA.y;                                        //troca a ordem dos pontos e simetrico dos deltas
+        pointA.y = pointB.y;
+        pointB.y = aux;
+        variable.dx = -variable.dx;                              
+        variable.dy = -variable.dy;
     }
-    
-    let y = y1;                         
-    let incrementoE = 2 * dy;                   //Incremento para E
-    let incrementoNE = 2 * (dy -dx);            //Incremento para NE
-    let d = 2 * dy - dx;                        //Valor de calculo base para os incrementos
-    for (let x = x1; x< x2; x++){               //Calcula os pontos 
-        pontos.push([x,y]);                     
+}
+
+function lineMP(pointA, pointB){
+    let points =[];                             
+    let variable = {symmetric:false,           
+                    slope:false,              
+                    dx:pointB.x - pointA.x,     
+                    dy:pointB.y - pointA.y};    
+    verifyConditionsLMP(variable, pointA, pointB);               //Verificar condições de partida do LMP
+    let d = 2 * variable.dy - variable.dx;                       //calculo base para os incrementos                       
+    let incrementE = 2 * variable.dy;                            //incrementar no sentido E
+    let incrementNE = 2 * (variable.dy -variable.dx);            //incrementar no sentido NE
+    let y = pointA.y; 
+    for (let x = pointA.x; x < pointB.x; x++){                   //Calcular os pontos da reta do pontoA ao pontoB 
+        points.push([x,y]);                     
         if(d <= 0){
-            d += incrementoE;                   //Se d for negativo ou nulo incrementa d para E
-        } else {
-            y++;                                //Se d for positivo incrementa y 
-            d += incrementoNE;                  //e d incrementa para NE
+            d += incrementE;                                       
+        } 
+        else if(d > 0) {
+            y++;                                                   
+            d += incrementNE;                                     
         }
     }
-    pontos.push([x2,y2]);                       //Adiciona a ultima coordenada da extremidade da linha
-    for(let i = 0; i < pontos.length; i++){     //Percorre o arrei de pontos Para atualizar os valores com base nas variáveis auxiliares
-        let x = pontos[i][0];
-        let y = pontos[i][1];
-        if(declive == true){                    //Verifica se existiu troca de coordenadas    
-            let aux = x;                        //Caso exista volta a trocar x com y (calculados)
+    points.push([pointB.x,pointB.y]);                        //Adicionar ultimo ponto da linha
+    for(let i = 0; i < points.length; i++){                  //Percorrer array e atualizar valores
+        let x = points[i][0];
+        let y = points[i][1];
+        if(variable.slope == true){                          //Verificar se existiu troca de coordenadas    
+            let aux = x;                                         
             x = y;
             y = aux;
         }
-        if(simetrico == true){                  //Verifica se existiu troca de valores para simétricos
-            y = -y;                             //Caso exista volta a trocar y (calculado) para o seu simétrico
+        if(variable.symmetric == true){                     //Verificar se existiu troca coordenadas para simétricos
+            y = -y;                                                 
         }
-        pontos[i]= [x,y];                       //Atualiza os valores no array de pontos
+        points[i]= [x,y];
     }
-   return pontos;
+   return points;                       //retorna array de pontos que forma a linha ponto médio
 }
