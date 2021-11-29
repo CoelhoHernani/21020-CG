@@ -11,20 +11,20 @@
 export {lineMP};                                //exportar a função lineMP
 
 function verifyConditionsLMP (variable,pointA, pointB){
-    let slope = variable.dy / variable.dx;                            //declive da reta
+    let slope = variable.dy * variable.dx;                            //declive da reta
     if(slope < 0){                                                    //Verifica se declive é negativo
         variable.symmetric = true;                                
-        variable.dy = -variable.dy;                                 
-        pointA.y = -pointA.y;                                      //troca para valores simétricos dos pontos por estarem num octante que não o padrão
+        variable.dy = -variable.dy;                                 //Substituir os valores de y de ambos os extremos pelos valores simetricos isto por não estarem no octante padrão
+        pointA.y = -pointA.y;                       
         pointB.y = -pointB.y;
     }
-    if(Math.abs(variable.dx)< Math.abs(variable.dy)){             //Verifica se em modulo, dx é inferior a dy 
+    if(Math.abs(variable.dx)< Math.abs(variable.dy)){             //Verifica se valor absoluto, dx é inferior a dy 
         variable.slope = true;                                   
         let aux = pointA.x;                                         
         pointA.x = pointA.y;                                        
         pointA.y = aux;
         aux = pointB.x;
-        pointB.x = pointB.y;                                    //troca a ordem dos pontos e dos delta
+        pointB.x = pointB.y;                                    //troca valores das coordenadas e dos valores dx e dy
         pointB.y = aux;
         aux = variable.dx;                                         
         variable.dx = variable.dy;
@@ -34,7 +34,7 @@ function verifyConditionsLMP (variable,pointA, pointB){
         let aux = pointA.x;                                         
         pointA.x = pointB.x;
         pointB.x = aux;
-        aux = pointA.y;                                        //troca a ordem dos pontos e simetrico dos deltas
+        aux = pointA.y;                                        //troca a ordem dos pontos e aplicar simetrico dx e dy
         pointA.y = pointB.y;
         pointB.y = aux;
         variable.dx = -variable.dx;                              
@@ -44,18 +44,19 @@ function verifyConditionsLMP (variable,pointA, pointB){
 
 function lineMP(pointA, pointB){
     let points =[];                             
-    let variable = {symmetric:false,           
+    let variable = {symmetric:false,                            //variavel auxiliar para verificar retas foram do primeiro octante
                     slope:false,              
                     dx:pointB.x - pointA.x,     
                     dy:pointB.y - pointA.y};    
     verifyConditionsLMP(variable, pointA, pointB);               //Verificar condições de partida do LMP
+    
     let d = 2 * variable.dy - variable.dx;                       //calculo base para os incrementos                       
     let incrementE = 2 * variable.dy;                            //incrementar no sentido E
     let incrementNE = 2 * (variable.dy -variable.dx);            //incrementar no sentido NE
     let y = pointA.y; 
     for (let x = pointA.x; x < pointB.x; x++){                   //Calcular os pontos da reta do pontoA ao pontoB 
         points.push([x,y]);                     
-        if(d <= 0){
+        if(d <= 0){                                              
             d += incrementE;                                       
         } 
         else if(d > 0) {

@@ -16,9 +16,9 @@ export {init};
 let scene, camera, renderer, controls, raycaster, mouse;                  
 let pointA = {x:{}, y:{}};
 let pointB = {x:{}, y:{}};
-let arrayVerticesLMP = [];
-let arrayLMP = [];
-let pointFlag = 0;
+let initialFinalPointCollector = [];
+let pointsLMP = [];
+let pointFlag = false;
 let oldX = {}, newX = {};
 let oldY = {}, newY = {};
 
@@ -149,7 +149,7 @@ function obtainCoordinates(option) {
     }
     else if (option == 1){                                                          //se 1, então altera cor do cubo e guarda coordenadas para calcular LMP
         intersects[0].object.material.color.set(0xf71207);
-        arrayVerticesLMP.push(intersects[0].object);
+        initialFinalPointCollector.push(intersects[0].object);
         saveCoordinates();       
     }
 }
@@ -169,33 +169,33 @@ function showCoordinates(coordinates){
 
 //Guardar as coordenadas do ponto A e do ponto B da LMP A_____________B
 function saveCoordinates(){
-    if(pointFlag == 0){                         //verifica que é o ponto A
+    if(pointFlag == false){                         //verifica que é o ponto A
         pointA.x = newX;
         pointA.y = newY;
-        pointFlag = 1;   
+        pointFlag = true;   
     }
-    else if(pointFlag == 1){                    //Verifica que é o ponto B
+    else if(pointFlag == true){                    //Verifica que é o ponto B
         pointB.x = newX;
         pointB.y = newY;
         pointFlag = 0;
-        arrayLMP = lineMP(pointA,pointB);       //Calcula o ponto médio, passando à lineMP os objetos literais,ponto A e B. Retorna um array de pontos 
-        drawTilesMP(arrayLMP);                  //Desenhar os ladrilhos da LMP e a linha
-        drawlineMP(arrayLMP);                   //Desenhar a linha do PM
-        arrayLMP.length = [];                    //limpa array da linha já construida
+        pointsLMP = lineMP(pointA,pointB);       //Calcula o ponto médio, passando à lineMP os objetos literais,ponto A e B. Retorna um array de pontos 
+        drawTilesMP(pointsLMP);                  //Desenhar os ladrilhos da LMP e a linha
+        drawlineMP(pointsLMP);                   //Desenhar a linha do PM
+        pointsLMP.length = [];                    //limpa array da linha já construida
 
     }
     console.log("Ax:",pointA.x, "Ay:",pointA.y,"Bx:", pointB.x, "By:", pointB.y);   //Log do ponto A e B na consola
 }
 
 //Coloca os tiles do ponto médio sobre o plano
-function drawTilesMP(arrayLMP){
+function drawTilesMP(pointsLMP){
     const geometrySquare = new THREE.BoxGeometry(1, 1, 0.25);                                                       //Definir geometria do ladrilho a sobrepor
     const tilesGroup = new THREE.Group();
-    for (let i = 0; i < arrayLMP.length; i++){
+    for (let i = 0; i < pointsLMP.length; i++){
         const materialSquare = new THREE.MeshBasicMaterial({color: 0xf7fb02, transparent: true, opacity: 0.5});     //Define cor a transparencia do ladrilho a sobrepor na grelha
         let tile = new THREE.Mesh(geometrySquare, materialSquare);
-        tile.position.x = arrayLMP[i][0];                                                                           //Define a posição dos ladrilhos de acordo com as posições dos pontos da LMP 
-        tile.position.y = arrayLMP[i][1];
+        tile.position.x = pointsLMP[i][0];                                                                           //Define a posição dos ladrilhos de acordo com as posições dos pontos da LMP 
+        tile.position.y = pointsLMP[i][1];
         tile.position.z = 0.1;
         tile.name = "tile";
         tilesGroup.add(tile);
@@ -205,14 +205,14 @@ function drawTilesMP(arrayLMP){
 }
 
 //Função para desenhar a linha do PM
-function drawlineMP(arrayLMP){
+function drawlineMP(pointsLMP){
     const lineMaterial = new THREE.LineBasicMaterial({color: 0x010101});        
     let indexA = 0;                                                 //Posição do ponto A no array de pontos da LMP
-    let indexB = arrayLMP.length - 1;                               //Posição do ponto B no array de pontos da LMP
-    let pointA_x = arrayLMP[indexA][0];                             //Extração das coordenadas x, y dos pontos
-    let pointA_y = arrayLMP[indexA][1];
-    let pointB_x = arrayLMP[indexB][0];
-    let pointB_y = arrayLMP[indexB][1];
+    let indexB = pointsLMP.length - 1;                               //Posição do ponto B no array de pontos da LMP
+    let pointA_x = pointsLMP[indexA][0];                             //Extração das coordenadas x, y dos pontos
+    let pointA_y = pointsLMP[indexA][1];
+    let pointB_x = pointsLMP[indexB][0];
+    let pointB_y = pointsLMP[indexB][1];
     let linePoints = [];                                            //pontos inicial e final da reta
     linePoints.push( new THREE.Vector3(pointA_x, pointA_y, 0.1 )); //x, y, z
     linePoints.push( new THREE.Vector3(pointB_x, pointB_y, 0.1 ));
@@ -250,13 +250,13 @@ function cleanLineLMP(){
 
 //Função que restaura a cor inicial dos quadrados que foram selecionados 
 function resetCubeColor(){
-    for(let i = 0; i< arrayVerticesLMP.length; i++){                //Percorre array dos pontos selecionados e restaura a cor de acordo com o que era antes
-        if(arrayVerticesLMP[i].material.name == "leightColor")
-            arrayVerticesLMP[i].material.color.set(0xf68968);
+    for(let i = 0; i< initialFinalPointCollector.length; i++){                //Percorre array dos pontos selecionados e restaura a cor de acordo com o que era antes
+        if(initialFinalPointCollector[i].material.name == "leightColor")
+            initialFinalPointCollector[i].material.color.set(0xf68968);
         else
-            arrayVerticesLMP[i].material.color.set(0x8c89b4);
+            initialFinalPointCollector[i].material.color.set(0x8c89b4);
     }
-    arrayVerticesLMP = [];                                           //Limpa array para não acomular pontos desnecessários
+    initialFinalPointCollector = [];                                           //Limpa array para não acomular pontos desnecessários
 }
 
 //Renderização da cena para actualizar
