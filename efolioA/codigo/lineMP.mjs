@@ -44,28 +44,29 @@ function verifyConditionsLMP (variable,pointA, pointB){
 
 function lineMP(pointA, pointB){
     let points =[];                             
-    let variable = {symmetric:false,                            //variavel auxiliar para verificar retas foram do primeiro octante
+    let variable = {symmetric:false,                            //variavel auxiliar para verificar retas fora do primeiro octante
                     slope:false,              
                     dx:pointB.x - pointA.x,     
                     dy:pointB.y - pointA.y};    
+    
     verifyConditionsLMP(variable, pointA, pointB);               //Verificar condições de partida do LMP
     
     let d = 2 * variable.dy - variable.dx;                       //calculo base para os incrementos                       
-    let incrementE = 2 * variable.dy;                            //incrementar no sentido E
-    let incrementNE = 2 * (variable.dy -variable.dx);            //incrementar no sentido NE
+    let incE = 2 * variable.dy;                            //incrementar no sentido E
+    let incNE = 2 * (variable.dy -variable.dx);            //incrementar no sentido NE
     let y = pointA.y; 
-    for (let x = pointA.x; x < pointB.x; x++){                   //Calcular os pontos da reta do pontoA ao pontoB 
+    for (let x = pointA.x; x < pointB.x; x++){              //Calcular os pontos da reta do pontoA ao pontoB 
         points.push([x,y]);                     
         if(d <= 0){                                              
-            d += incrementE;                                       
+            d += incE;                                       
         } 
         else if(d > 0) {
             y++;                                                   
-            d += incrementNE;                                     
+            d += incNE;                                     
         }
     }
     points.push([pointB.x,pointB.y]);                        //Adicionar ultimo ponto da linha
-    for(let i = 0; i < points.length; i++){                  //Percorrer array e atualizar valores
+    for(let i = 0; i < points.length; i++){                  //Atualiza valores, caso seja uma reta fora do primeiro octante é necessário inverter a transformação
         let x = points[i][0];
         let y = points[i][1];
         if(variable.slope == true){                          //Verificar se existiu troca de coordenadas    
