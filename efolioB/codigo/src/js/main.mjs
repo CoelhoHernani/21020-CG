@@ -179,6 +179,7 @@ function KeyboardPress(event){
 function selectBall(ballColor){
     selectedBall = scene.getObjectByName(ballColor);
     selectedBall.material.opacity = 1;
+    atualizeTextBox();
 }
 
 function moveSelectedBallOnXY(){
@@ -263,9 +264,38 @@ function saveXYCoordinates(coordinates){
 
 //Função para restaurar a grelha inicial
 function resetBoard(){
-    //scene.clear();
-    //init();
+    clearBezierTubes();
+    setOriginalBallPositions();
     animate();
+}
+
+function clearBezierTubes(){
+    let tube;
+    do{
+        tube = scene.getObjectByName("tube");
+        scene.remove(tube);
+    }while (tube);
+}
+
+function setOriginalBallPositions(){
+    let ball;
+    ball = scene.getObjectByName("yellowBall");
+    ball.position.set(4,4,0);
+    ball = scene.getObjectByName("redBall");
+    ball.position.set(-4,-4,0);
+    ball = scene.getObjectByName("greenBall");
+    ball.position.set(-4,4,0);
+    ball = scene.getObjectByName("blueBall");
+    ball.position.set(4,-4,0);
+}
+
+
+function atualizeTextBox(){
+    let string = ""; 
+    let outputTextCoord = string.concat("x:", selectedBall.position.x, " y:", selectedBall.position.y, " z:", selectedBall.position.z);
+    document.getElementById("Ball").value = selectedBall.name;
+    document.getElementById("coordinates").value = outputTextCoord;
+    
 }
 
 //Renderização da cena para actualizar
