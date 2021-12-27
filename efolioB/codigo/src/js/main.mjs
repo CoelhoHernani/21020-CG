@@ -22,7 +22,7 @@ function init(){
     createScene();              //Criar cena
     createPlane();              //Criar plano do tabuleiro
     drawAxelLines();            //Criar eixos do referencial x, y, z
-    createControlBalls();
+    createControlBalls();       //Criar bolas referentes aos pontos c0, c1, c2 e c3
     initialCamera();            //Setup da camera inicial
     animate();                  //rendirizar a cena para atualizar
 }
@@ -41,7 +41,7 @@ function createPlane(){
     const geometrySquare = new THREE.BoxGeometry(1, 1, 0.01);                                    //Geometria do quadrado
     geometrySquare.name = "square";                                                             //Nome para o objeto quadrado
     const board = new THREE.Group();                                                            //Objeto para agrupar todos os cubos
-    for (let x = 0; x < 20; x++) {                                                              //Criar o plano de 21 por 21 quadrados alternados
+    for (let x = 0; x < 20; x++) {                                                              //Criar o plano de 20 por 20 quadrados alternados
         for (let y = 0; y < 20; y++) {
             let cube;                                                                           //Criar objetos cubos que compõem o tabuleiro
             const leightColor = new THREE.MeshBasicMaterial({ color: 0xf68968, transparent: true, opacity: 0.5 });             //Criar objetos do tipo material de determinada cor e definir nomes
@@ -84,20 +84,22 @@ function drawAxelLines(){
 
 }
 
-class CustomSinCurve extends THREE.Curve {
+//Classe para construção de objetos do tipo curve da biblioteca THREE
+class bezierCurve extends THREE.Curve {
 	constructor( ) {
 		super();                                                            //usado para ter acesso à classe pai de uma classe, neste caso da THREE.Curve
 	}
-	getPoint( t, optionalTarget = new THREE.Vector3() ) {
-        let vectorC = new THREE.Vector3();
+	getPoint( t, coordinates = new THREE.Vector3() ) {
+        let aux = new THREE.Vector3();
         bezierParameters._t = t;
-        vectorC = bezier3(bezierParameters);
-        return optionalTarget.set( vectorC[0], vectorC[1], vectorC[2] );
+        aux = bezier3(bezierParameters);                            //evocação da função bezier para calcular pontos da curva em cada instante de t 
+        return coordinates.set( aux[0], aux[1], aux[2] );
 	}
 }
 
+//função para criar objeto da curva bezier
 function bezierCurveDraw(){
-    const path = new CustomSinCurve();
+    const path = new bezierCurve();                                         //objeto da curva bezier
     const geometry = new THREE.TubeGeometry( path, 64, 0.1, 8, false );
     const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
     const tube = new THREE.Mesh( geometry, material );
@@ -105,26 +107,24 @@ function bezierCurveDraw(){
     scene.add(tube);
 }
 
+//função para criação das bolas referentes aos pontos de controlo c0, c1, c2 e c3
 function createControlBalls(){
-    const sphereGeometry = new THREE.SphereGeometry(0.5, 32, 16);                                    //Geometria do quadrado
+    const sphereGeometry = new THREE.SphereGeometry(0.5, 32, 16);                                    //Geometria da esfera
     sphereGeometry.name = "sphereGeometry";
-    const yellowMaterial = new THREE.MeshBasicMaterial({color: 0xffff00, transparent: true, opacity: 0.5});
+    const yellowMaterial = new THREE.MeshBasicMaterial({color: 0xffff00, transparent: true, opacity: 0.5});     //bolas semi transparentes
     const redMaterial = new THREE.MeshBasicMaterial({color: 0xff0000, transparent: true, opacity: 0.5});
     const greenMaterial = new THREE.MeshBasicMaterial({color: 0x00cc00, transparent: true, opacity: 0.5});
     const blueMaterial = new THREE.MeshBasicMaterial({color: 0x0000ff, transparent: true, opacity: 0.5});
     const yellowBall = new THREE.Mesh(sphereGeometry, yellowMaterial);
     yellowBall.name = "yellowBall";
-    yellowBall.position.set(4, 4, 0);
     const redBall = new THREE.Mesh(sphereGeometry, redMaterial);
     redBall.name = "redBall";
-    redBall.position.set(-4, -4, 0);
     const greenBall = new THREE.Mesh(sphereGeometry, greenMaterial);
     greenBall.name = "greenBall";
-    greenBall.position.set(-4, 4, 0);
     const blueBall = new THREE.Mesh(sphereGeometry, blueMaterial);
     blueBall.name = "blueBall";
-    blueBall.position.set(4, -4, 0);
     scene.add(yellowBall, redBall, greenBall, blueBall);
+    setOriginalBallPositions();                                 //posiciona a posição inicial das bolas
 }
 
 //Verifica se rato está mover-se
@@ -144,31 +144,31 @@ function KeyboardPress(event){
     let key = event.which;
     switch (key){
         case 32:
-            moveSelectedBallOnXY();
+            moveSelectedBallOnXY();     //tecla espaço move bola selecionada para o ponto onde se encontra o rato
             break;
         case 49:
-            selectBall("yellowBall");
+            selectBall("yellowBall");   //tecla 1 seleciona bola amarela
             break;
         case 50:
-            selectBall("redBall");
+            selectBall("redBall");      //tecla 2 seleciona bola vermelha
             break;
         case 51:
-            selectBall("greenBall");
+            selectBall("greenBall");    //tecla 3 seleciona bola verde
             break;
         case 52:
-            selectBall("blueBall");
+            selectBall("blueBall");     //tecla 4 seleciona bola azul
             break;
         case 83:
-            moveSelectedBallOnZ("down");
+            moveSelectedBallOnZ("down");    //tecla s move bola selecionada para baixo
             break
         case 87:
-            moveSelectedBallOnZ("up");
+            moveSelectedBallOnZ("up");      //tecla w move bola selecionada para cima
             break;
         case 8:                                                                                 
             resetBoard();               //tecla backspace restaurar cenário inicial              
             break;
         case 88:
-            bezierCurveDraw();       //tecla x guardar coordenadas
+            bezierCurveDraw();       //tecla x desenha curva bezier
             break;  
         default:
             console.log("Por favor selecione uma tecla válida! x para guardar coordenadas ou backspace para restaurar grelha!");
@@ -176,15 +176,17 @@ function KeyboardPress(event){
     }
 }
 
+//função que atualiza a bola selecionada e altera a opacidade da mesma
 function selectBall(ballColor){
     selectedBall = scene.getObjectByName(ballColor);
     selectedBall.material.opacity = 1;
-    atualizeTextBox();
+    
 }
 
+//função que move a bola selecionada nos eixos x, y
 function moveSelectedBallOnXY(){
-    obtainCoordinates(1);
-    if (selectedBall.name == "yellowBall"){
+    obtainCoordinates(1);                       //guardar coordenadas dos pontos de controlo bezier, conforme posição do rato
+    if (selectedBall.name == "yellowBall"){     //conforme a bola que está selecionada, definir sua posição conforme os pontos de controlo bezier
         selectedBall.position.set(bezierParameters.c0.x, bezierParameters.c0.y, bezierParameters.c0.z);
     } else if (selectedBall.name == "redBall"){
         selectedBall.position.set(bezierParameters.c1.x, bezierParameters.c1.y, bezierParameters.c1.z);
@@ -193,17 +195,20 @@ function moveSelectedBallOnXY(){
     } else if (selectedBall.name == "blueBall"){
         selectedBall.position.set(bezierParameters.c3.x, bezierParameters.c3.y, bezierParameters.c3.z);
     }
+    prependicularBallLine();                //desenhar linha prependicular à bola
+    updateTextBox();                        //atualizar informação para tela
 }
 
+//função que move bola selecionada no eixo z
 function moveSelectedBallOnZ(option){
-    if (option == "up"){
+    if (option == "up"){                                //guardar coordenada z do ponto controlo bezier conforme bola seleccionada
         let z = selectedBall.position.z + 0.1;
         saveZCoordinate(z);
     } else {
         let z = selectedBall.position.z - 0.1;
         saveZCoordinate(z);
     }
-    if (selectedBall.name == "yellowBall"){
+    if (selectedBall.name == "yellowBall"){                 //atualizar coordelada z da bola selecionada
         selectedBall.position.z = bezierParameters.c0.z;
     } else if (selectedBall.name == "redBall"){
         selectedBall.position.z = bezierParameters.c1.z;
@@ -212,18 +217,34 @@ function moveSelectedBallOnZ(option){
     } else if (selectedBall.name == "blueBall"){
         selectedBall.position.z = bezierParameters.c3.z;
     }
+    updateTextBox(); 
+    prependicularBallLine();
 }
 
-//Obter coordenadas dos cubos na grelha
+//função que adiciona linha auxiliar prependicular ao tabuleiro quando as bolas estão acima ou abaixo do tabuleiro
+function prependicularBallLine(){
+    cleanBallLine();                    //limpar linha prependicular, para atualizar de seguida 
+    let string = "";
+    let BallLineMaterial = new THREE.LineBasicMaterial({ color: 0xccffff});
+    let BallLinePoints = [];
+    BallLinePoints.push( new THREE.Vector3( selectedBall.position.x, selectedBall.position.y, 0 ) );  //x, y, z                     //pontos inicial e final da reta
+    BallLinePoints.push( new THREE.Vector3( selectedBall.position.x, selectedBall.position.y, selectedBall.position.z));
+    let BallLineGeometry = new THREE.BufferGeometry().setFromPoints(BallLinePoints);            //formar linha, unindo vertices anteriores
+    let BallLine = new THREE.Line(BallLineGeometry, BallLineMaterial );
+    BallLine.name = string.concat(selectedBall.name, "Line");            
+    scene.add(BallLine);
+}
+
+//Obter coordenadas na grelha
 function obtainCoordinates(option) {
     raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse, camera);                                         //Atualiza raycaster bom base na posição do rato e qual a camera escolhida para visualizar
     const intersects = raycaster.intersectObjects(scene.children[0].children);      //Verifica as interseções entre o rato e os objetos da cena, neste caso cubos
     if(option == 0){                                                                //se 0, então apenas faz log para consola
         if(intersects[0])
-            showCoordinates(intersects[0].point);
+            showCoordinates(intersects[0].point);                                  
     }
-    else if (option == 1){                                                          //se 1, então altera cor do cubo e guarda coordenadas para calcular LMP
+    else if (option == 1){                                                          //se 1, então guarda as coordenadas em x e y
         saveXYCoordinates(intersects[0].point);       
     }
 }
@@ -233,6 +254,7 @@ function showCoordinates(coordinates){
     console.log("x:", parseFloat(coordinates.x).toFixed(3), "y:", parseFloat(coordinates.y).toFixed(3)); //Apresenta coordenadas em float arredondado a 3 casas decimais
 }
 
+//função para guardar a coordenada z da bola selecionada
 function saveZCoordinate(z){
     if (selectedBall.name == "yellowBall"){
         bezierParameters.c0.z = z;
@@ -245,7 +267,7 @@ function saveZCoordinate(z){
     }
 }
 
-//Guardar as coordenadas do ponto A e do ponto B da LMP A_____________B
+//função para guardar coordenadas x e y da bola selecionada
 function saveXYCoordinates(coordinates){
     if (selectedBall.name == "yellowBall"){
         bezierParameters.c0.x = coordinates.x;
@@ -265,10 +287,12 @@ function saveXYCoordinates(coordinates){
 //Função para restaurar a grelha inicial
 function resetBoard(){
     clearBezierTubes();
+    cleanLines();
     setOriginalBallPositions();
     animate();
 }
 
+//função para limpar as beziers desenhadas
 function clearBezierTubes(){
     let tube;
     do{
@@ -277,6 +301,26 @@ function clearBezierTubes(){
     }while (tube);
 }
 
+//função para limpar a linha prependicular, desatualizda, da bola selecionada 
+function cleanBallLine(){
+    let string = "";
+    let line = scene.getObjectByName(string.concat(selectedBall.name, "Line"));
+    scene.remove(line);
+}
+
+//função para limpar todas as linhas prependiculares 
+function cleanLines(){
+    let line = scene.getObjectByName("yellowBallLine");
+    scene.remove(line);
+    line = scene.getObjectByName("redBallLine");
+    scene.remove(line);
+    line = scene.getObjectByName("greenBallLine");
+    scene.remove(line);
+    line = scene.getObjectByName("blueBallLine");
+    scene.remove(line);
+}
+
+//função para definir posições iniciais das bolas
 function setOriginalBallPositions(){
     let ball;
     ball = scene.getObjectByName("yellowBall");
@@ -289,10 +333,10 @@ function setOriginalBallPositions(){
     ball.position.set(4,-4,0);
 }
 
-
-function atualizeTextBox(){
+//função para atualizar caixa de texto que indica a bola selecionada e as suas coordenadas
+function updateTextBox(){
     let string = ""; 
-    let outputTextCoord = string.concat("x:", selectedBall.position.x, " y:", selectedBall.position.y, " z:", selectedBall.position.z);
+    let outputTextCoord = string.concat("x:", parseFloat(selectedBall.position.x).toFixed(3), " y:", parseFloat(selectedBall.position.y).toFixed(3), " z:", parseFloat(selectedBall.position.z).toFixed(3));
     document.getElementById("Ball").value = selectedBall.name;
     document.getElementById("coordinates").value = outputTextCoord;
     

@@ -25,6 +25,7 @@ function bezier3(bezierParameters){
     let c3z = bezierParameters.c3.z;
     let t = bezierParameters._t;
     let coordinates = [];
+    
 
     let x = c0x * Math.pow(1-t, 3) + c1x * 3 * t * Math.pow(1-t, 2) + c2x * 3 * Math.pow(t, 2) * (1-t) + c3x * Math.pow(t, 3);
     let y = c0y * Math.pow(1-t, 3) + c1y * 3 * t * Math.pow(1-t, 2) + c2y * 3 * Math.pow(t, 2) * (1-t) + c3y * Math.pow(t, 3);
