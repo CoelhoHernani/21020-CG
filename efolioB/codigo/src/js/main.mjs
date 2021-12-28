@@ -10,12 +10,13 @@
 import * as THREE from 'https://unpkg.com/three@0.124.0/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.124.0/examples/jsm/controls/OrbitControls.js';
 import {bezier3} from '../../bezier3.mjs';
-export {init};
+export {init, biezer3Vetor};
 
 //Declaração objetos da cena
 let scene, camera, renderer, controls, raycaster, mouse;                  
 let bezierParameters = {c0:new THREE.Vector3(4,4,0), c1:new THREE.Vector3(-4,-4,0), c2:new THREE.Vector3(-4,4,0), c3:new THREE.Vector3(4,-4,0), _t:0};
 let selectedBall;
+let biezer3Vetor = new THREE.Vector3(); // vetor será importado no módulo bezier3
 
 //Função inicial para arrancar com o programa
 function init(){
@@ -93,13 +94,13 @@ class bezierCurve extends THREE.Curve {
         let aux = new THREE.Vector3();
         bezierParameters._t = t;
         aux = bezier3(bezierParameters);                            //evocação da função bezier para calcular pontos da curva em cada instante de t 
-        return coordinates.set( aux[0], aux[1], aux[2] );
+        return coordinates.set( aux.x, aux.y, aux.z );
 	}
 }
 
 //função para criar objeto da curva bezier
 function bezierCurveDraw(){
-    const path = new bezierCurve();                                         //objeto da curva bezier
+    const path = new bezierCurve();                                         //objeto da curva bezier, utiliza a classe bezierCurve que herda da classe base THREE.Curve
     const geometry = new THREE.TubeGeometry( path, 64, 0.1, 8, false );
     const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
     const tube = new THREE.Mesh( geometry, material );
@@ -171,7 +172,7 @@ function KeyboardPress(event){
             bezierCurveDraw();       //tecla x desenha curva bezier
             break;  
         default:
-            console.log("Por favor selecione uma tecla válida! x para guardar coordenadas ou backspace para restaurar grelha!");
+            console.log("Por favor selecione uma tecla válida!");
             break;                 
     }
 }
